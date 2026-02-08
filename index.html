@@ -229,7 +229,7 @@
 
     function togglePaintMode() {
         isEnabled = !isEnabled;
-        document.getElementById('draw-btn').innerText = isEnabled ? "ВЫКЛЮЧИТЬ" : "ВКЛЮЧИТЬ РЕЖИМ";
+        document.getElementById('draw-btn').innerText = isEnabled ? "ВЫКЛЮЧИТЬ РИСОВАЛКУ" : "ВКЛЮЧИТЬ РИСОВАЛКУ";
         canvas.classList.toggle('active', isEnabled);
         isEnabled ? map.dragging.disable() : map.dragging.enable();
     }
@@ -286,4 +286,5 @@
 </script>
 </body>
 </html>
+
 
