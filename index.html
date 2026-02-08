@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>PolitMap | Tactical Terminal</title>
+    <title>PolitMap | Интерактивная карта СВО</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
@@ -100,13 +100,13 @@
             </label>
         </div>
         <div class="switch-group">
-            <span>Объекты JSON</span>
+            <span>Граница фронта</span>
             <label class="switch">
                 <input type="checkbox" id="border-switch" checked onchange="updateGeoVisibility()">
                 <span class="slider"></span>
             </label>
         </div>
-        <button class="tool-btn" onclick="loadMapData()">🔄 Обновить данные</button>
+        <button class="tool-btn" onclick="loadMapData()">Обновить данные</button>
     </div>
 
     <div id="t-draw" class="tab-page">
@@ -120,10 +120,11 @@
     </div>
 
     <div id="t-don" class="tab-page">
-        <h2>Поддержка</h2>
+        <h2>Поддержка автора</h2>
+        <h3>Номер карты Т-БАНК</h3>
         <div class="support-card">
             <div class="card-number-box" id="card-num">2200 0000 0000 0000</div>
-            <button class="tool-btn main-action" onclick="copyCard()">Копировать номер</button>
+            
         </div>
     </div>
 </div>
