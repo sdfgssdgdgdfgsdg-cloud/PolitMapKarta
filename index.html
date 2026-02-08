@@ -9,13 +9,11 @@
         :root { --army-red: #8b0000; --khaki: #c2b280; --sidebar: #0d0d0d; --border: #222; }
         body { margin: 0; background: #000; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; color: #ccc; }
         
-        /* ТАБ-БАР (Левая узкая панель) */
         #tab-bar { width: 50px; background: #111; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 3001; }
         .tab-btn { width: 38px; height: 38px; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 15px; border-radius: 6px; }
         .tab-btn.active { color: var(--khaki); background: #2a2f24; border: 1px solid #3b4634; }
-        .tab-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+        .tab-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-        /* САЙДБАР (Раскрывающаяся панель) */
         #sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); z-index: 3000; transition: 0.3s; overflow-y: auto; }
         #sidebar.collapsed { width: 0; transform: translateX(-280px); }
 
@@ -27,66 +25,38 @@
         .tab-page { display: none; padding: 20px; }
         .tab-page.active { display: block; }
         
-        /* КНОПКИ */
-        .tool-btn { width: 100%; padding: 10px; background: #151515; border: 1px solid #333; color: #777; margin-bottom: 5px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 8px; font-size: 13px; transition: 0.2s; }
-        .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
-
-        /* КАРТА И ХОЛСТ */
         #map-container { position: relative; flex-grow: 1; height: 100vh; }
         #map { height: 100%; width: 100%; background: #000; }
         #paint-canvas { position: absolute; top: 0; left: 0; z-index: 1000; pointer-events: none; width: 100%; height: 100%; touch-action: none; }
         #paint-canvas.active { pointer-events: auto; cursor: crosshair; }
 
+        .tool-btn { width: 100%; padding: 10px; background: #151515; border: 1px solid #333; color: #777; margin-bottom: 5px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
+        .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
+
+        .dot-container { background: transparent !important; border: none !important; }
         .pulsating-dot { width: 10px; height: 10px; background: #ff3b3b; border-radius: 50%; box-shadow: 0 0 10px #ff3b3b; }
-        
-        /* СТИЛЬ РЕКВИЗИТОВ */
-        .donate-content { background: #111; border: 1px solid #222; padding: 20px; border-radius: 8px; text-align: center; }
-        .card-number { font-family: monospace; color: var(--khaki); font-size: 18px; letter-spacing: 1px; display: block; margin: 15px 0; }
     </style>
 </head>
 <body>
 
 <div id="tab-bar">
-    <div id="btn-layers" class="tab-btn active" onclick="handleTab('layers')" title="Карта">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-    </div>
-    <div id="btn-draw" class="tab-btn" onclick="handleTab('draw')" title="Рисовалка">
-        <svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-    </div>
-    <div id="btn-donate" class="tab-btn" onclick="handleTab('donate')" title="Реквизиты">
-        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-    </div>
+    <div id="btn-layers" class="tab-btn active" onclick="handleTab('layers')"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg></div>
+    <div id="btn-draw" class="tab-btn" onclick="handleTab('draw')"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></div>
 </div>
 
 <div id="sidebar">
     <div id="layers" class="tab-page active">
-        <h3 style="color: #fff; font-size: 14px; text-transform: uppercase;">Карта</h3>
+        <h3 style="color: #fff; font-size: 14px;">УПРАВЛЕНИЕ КАРТОЙ</h3>
         <button class="tool-btn" onclick="toggleSatellite()" id="satBtn">🛰️ Спутниковый режим</button>
-        <button class="tool-btn" onclick="loadData()">🔄 Обновить JSON</button>
+        <button class="tool-btn" onclick="loadData()">🔄 Обновить данные JSON</button>
     </div>
-
     <div id="draw" class="tab-page">
-        <h3 style="color: #fff; font-size: 14px; text-transform: uppercase;">Инструменты</h3>
+        <h3 style="color: #fff; font-size: 14px;">РИСОВАЛКА</h3>
         <button class="tool-btn active" id="brush-btn" onclick="setTool('brush', this)">🖌️ Кисть</button>
         <button class="tool-btn" onclick="setTool('arrow', this)">↗️ Стрелка</button>
-        <input type="color" id="paint-color" value="#c2b280" style="width:100%; height:30px; border:none; background:none; cursor:pointer; margin: 10px 0;">
+        <input type="color" id="paint-color" value="#c2b280" style="width:100%; margin: 10px 0;">
         <button class="tool-btn" onclick="togglePaintMode()" id="toggle-paint-btn" style="background: #222; color: #fff; justify-content: center;">ВКЛЮЧИТЬ РИСОВАНИЕ</button>
-        <button class="tool-btn" onclick="clearCanvas()" style="color: #ff4444; justify-content: center; margin-top: 10px;">Очистить всё</button>
-    </div>
-
-    <div id="donate" class="tab-page">
-        <h3 style="color: #fff; font-size: 14px; text-transform: uppercase;">Поддержка</h3>
-        <p style="font-size: 13px; color: #888; line-height: 1.4;">Вы можете поддержать работу проекта, отправив любую сумму на карту:</p>
-        
-        <div class="donate-content">
-            <span style="font-size: 11px; color: #555; text-transform: uppercase;">Номер карты</span>
-            <span class="card-number" id="card-num">0000 0000 0000 0000</span>
-            <button class="tool-btn" onclick="copyText()" style="justify-content: center; background: #1a1e16; border-color: #3b4634; color: #fff;">
-                📋 Копировать номер
-            </button>
-        </div>
-
-        <p style="font-size: 12px; color: #444; margin-top: 20px; text-align: center;">Спасибо за поддержку!</p>
+        <button class="tool-btn" onclick="clearCanvas()" style="color: #ff4444; justify-content: center;">Очистить всё</button>
     </div>
 </div>
 
@@ -97,7 +67,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Настройка Leaflet
+    // Настройка слоев
     const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
     const satTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
     const map = L.map('map', { attributionControl: false, zoomControl: false }).setView([48.3, 37.5], 7);
@@ -111,34 +81,49 @@
         document.getElementById('satBtn').classList.toggle('active', isSat);
     }
 
-    // Загрузка JSON
+    // Загрузка JSON полигонов
     let geoLayer;
     const pulsingIcon = L.divIcon({ className: 'dot-container', html: '<div class="pulsating-dot"></div>' });
 
     async function loadData() {
         try {
-            const res = await fetch('data/map.json?v=' + Date.now());
-            if (!res.ok) throw new Error();
-            const data = await res.json();
+            // Добавляем случайное число, чтобы браузер не брал старый файл из кэша
+            const response = await fetch('data/map.json?nocache=' + Math.random());
+            if (!response.ok) throw new Error("Файл data/map.json не найден");
+            const data = await response.json();
+
             if (geoLayer) map.removeLayer(geoLayer);
+
             geoLayer = L.geoJSON(data, {
-                style: (f) => ({ fillColor: f.properties.color || "#8b0000", color: f.properties.color || "#8b0000", weight: 2, fillOpacity: 0.4 }),
-                pointToLayer: (f, latlng) => L.marker(latlng, { icon: pulsingIcon }),
-                onEachFeature: (f, layer) => {
-                    if (f.properties && f.properties.name) {
+                style: (feature) => ({
+                    fillColor: feature.properties.color || "#8b0000",
+                    color: feature.properties.color || "#8b0000",
+                    weight: 2,
+                    fillOpacity: 0.4
+                }),
+                pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pulsingIcon }),
+                onEachFeature: (feature, layer) => {
+                    if (feature.properties && feature.properties.name) {
                         layer.on('click', () => {
                             if (layer.getTooltip()) { layer.unbindTooltip(); }
-                            else { layer.bindTooltip(f.properties.name, { permanent: true }).openTooltip(); }
+                            else { layer.bindTooltip(feature.properties.name, { permanent: true }).openTooltip(); }
                         });
                     }
                 }
             }).addTo(map);
+
+            // ФОКУС: Карта автоматически центрируется на твоих полигонах
             const bounds = geoLayer.getBounds();
             if (bounds.isValid()) map.fitBounds(bounds);
-        } catch (e) { console.log("JSON not found"); }
+
+            console.log("Полигоны успешно загружены");
+        } catch (err) {
+            console.error("Ошибка:", err);
+            alert("Полигоны не загрузились. Убедись, что папка 'data' лежит рядом с index.html");
+        }
     }
 
-    // Интерфейс табов
+    // Интерфейс
     function handleTab(id) {
         document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -149,16 +134,9 @@
         setTimeout(() => map.invalidateSize(), 200);
     }
 
-    // Копирование
-    function copyText() {
-        const num = document.getElementById('card-num').innerText;
-        navigator.clipboard.writeText(num);
-        alert("Номер карты скопирован!");
-    }
-
-    // Рисовалка
+    // Рисовалка (адаптированная под телефон)
     const canvas = document.getElementById('paint-canvas'), ctx = canvas.getContext('2d');
-    let isPaintingMode = false, isDrawing = false, tool = 'brush', snapshot, startX, startY;
+    let isPaintingMode = false, isDrawing = false, tool = 'brush', snapshot;
 
     function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
     window.addEventListener('resize', resizeCanvas); resizeCanvas();
@@ -197,14 +175,16 @@
         if (tool === 'brush') { ctx.lineTo(pos.x, pos.y); ctx.stroke(); }
         else {
             ctx.putImageData(snapshot, 0, 0);
-            if (tool === 'arrow') {
-                const head = 15, angle = Math.atan2(pos.y-startY, pos.x-startX);
-                ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(pos.x, pos.y);
-                ctx.lineTo(pos.x-head*Math.cos(angle-Math.PI/6), pos.y-head*Math.sin(angle-Math.PI/6));
-                ctx.moveTo(pos.x, pos.y); ctx.lineTo(pos.x-head*Math.cos(angle+Math.PI/6), pos.y-head*Math.sin(angle+Math.PI/6));
-                ctx.stroke();
-            }
+            if (tool === 'arrow') drawArrow(startX, startY, pos.x, pos.y);
         }
+    }
+
+    function drawArrow(x1, y1, x2, y2) {
+        const head = 15, angle = Math.atan2(y2-y1, x2-x1);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.lineTo(x2-head*Math.cos(angle-Math.PI/6), y2-head*Math.sin(angle-Math.PI/6));
+        ctx.moveTo(x2, y2); ctx.lineTo(x2-head*Math.cos(angle+Math.PI/6), y2-head*Math.sin(angle+Math.PI/6));
+        ctx.stroke();
     }
 
     canvas.addEventListener('mousedown', startDraw);
@@ -222,6 +202,7 @@
 
     function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
+    // Старт
     loadData();
 </script>
 </body>
