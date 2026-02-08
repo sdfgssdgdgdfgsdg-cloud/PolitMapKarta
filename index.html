@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>PolitMap | Tactical Terminal</title>
+    <title>PolitMap | Интерактивная карта СВОl</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
@@ -19,7 +19,6 @@
         /* ТАБ БАР */
         #tab-bar { width: 60px; min-width: 60px; background: #111; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 10001; }
         
-        /* САЙДБАР С АККОРДЕОНОМ */
         #sidebar { 
             width: 300px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); 
             z-index: 10000; display: flex; flex-direction: column;
@@ -34,10 +33,45 @@
         .tab-page { display: none; padding: 25px 20px; height: 100%; overflow-y: auto; min-width: 300px; }
         .tab-page.active { display: block; }
 
-        .tool-btn { width: 100%; padding: 12px; background: #151515; border: 1px solid #333; color: #888; margin-bottom: 8px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
-        .tool-btn:active { transform: scale(0.98); }
+        h2 { font-size: 11px; letter-spacing: 2px; color: #555; margin-bottom: 20px; text-transform: uppercase; }
+
+        /* КНОПКИ */
+        .tool-btn { width: 100%; padding: 12px; background: #151515; border: 1px solid #333; color: #888; margin-bottom: 8px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 10px; }
         .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
-        .tool-btn.donate { background: #b18e3d; color: #000; border: none; justify-content: center; margin-top: 20px; font-size: 14px; }
+
+        /* ПЛАШКА ПОДДЕРЖКИ */
+        .support-card {
+            background: #111;
+            border: 1px solid #222;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .card-number-box {
+            background: #000;
+            border: 1px solid var(--army-red);
+            padding: 12px;
+            border-radius: 4px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 1px;
+            margin: 10px 0;
+        }
+        .copy-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--army-red);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        .copy-btn:active { opacity: 0.7; }
 
         /* КАРТА */
         #map-wrap { position: relative; flex-grow: 1; height: 100vh; z-index: 1; }
@@ -54,7 +88,6 @@
         }
         .custom-tooltip { background: #000 !important; border: 1px solid var(--khaki) !important; color: #fff !important; font-weight: bold; }
 
-        /* ПЕРЕКЛЮЧАТЕЛИ */
         .switch-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: #151515; border-radius: 6px; }
         .switch { position: relative; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -74,32 +107,42 @@
         <svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
     </div>
     <div class="tab-btn" id="btn-don" onclick="toggleTab('don')">
-        <svg viewBox="0 0 24 24"><path d="M20 12l-8 8-8-8M12 4v16"></path><circle cx="12" cy="12" r="10" stroke-opacity="0.2"></circle><path d="M12 7v10M9 10l3-3 3 3"></path></svg>
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>
     </div>
 </div>
 
 <div id="sidebar">
     <div id="t-map" class="tab-page active">
-        <h2 style="font-size:11px; letter-spacing:2px; color:#555; margin-bottom:20px;">СЛОИ И ДАННЫЕ</h2>
+        <h2>Карта</h2>
         <div class="switch-group"><span>Спутник + OSM</span><label class="switch"><input type="checkbox" id="sat-switch" onchange="toggleLayers()"><span class="slider"></span></label></div>
         <div class="switch-group"><span>Объекты JSON</span><label class="switch"><input type="checkbox" id="border-switch" checked onchange="updateGeo()"><span class="slider"></span></label></div>
-        <button class="tool-btn" onclick="loadMapData()">🔄 ОБНОВИТЬ КАРТУ</button>
+       
     </div>
 
     <div id="t-draw" class="tab-page">
-        <h2 style="font-size:11px; letter-spacing:2px; color:#555; margin-bottom:20px;">ИНСТРУМЕНТЫ</h2>
-        <button class="tool-btn active" id="tool-brush" onclick="setTool('brush')">КИСТЬ</button>
-        <button class="tool-btn" id="tool-arrow" onclick="setTool('arrow')">СТРЕЛКА</button>
-        <button class="tool-btn" id="tool-circle" onclick="setTool('circle')">КРУГ</button>
-        <button class="tool-btn" id="tool-rect" onclick="setTool('rect')">КВАДРАТ</button>
+        <h2>Рисование</h2>
+        <button class="tool-btn active" id="tool-brush" onclick="setTool('brush')">Кисть</button>
+        <button class="tool-btn" id="tool-arrow" onclick="setTool('arrow')">Стрелка</button>
+        <button class="tool-btn" id="tool-circle" onclick="setTool('circle')">Круг</button>
+        <button class="tool-btn" id="tool-rect" onclick="setTool('rect')">Квадрат</button>
         <input type="color" id="m-color" value="#c2b280" style="width:100%; height:40px; border:1px solid #333; background:none; margin:10px 0;">
-        <button class="tool-btn" id="draw-btn" onclick="togglePaint()" style="background:var(--army-red); color:#fff; border:none; justify-content:center;">ВКЛЮЧИТЬ РЕЖИМ</button>
+        <button class="tool-btn" id="draw-btn" onclick="togglePaint()" style="background:var(--army-red); color:#fff; border:none; justify-content:center;">Включить рисование</button>
+        <button class="tool-btn" onclick="clearCanvas()" style="margin-top:10px; justify-content:center;">Очистить слой</button>
     </div>
 
     <div id="t-don" class="tab-page">
-        <h2 style="font-size:11px; letter-spacing:2px; color:#555; margin-bottom:20px;">ПОДДЕРЖКА</h2>
-        <p style="font-size: 13px; line-height: 1.6; color: #888;">Если вам нравится проект, вы можете поддержать автора для развития новых функций и улучшения тактического терминала.</p>
-        <button class="tool-btn donate" onclick="window.open('https://your-link.com', '_blank')">🪙 ПОДДЕРЖАТЬ ПРОЕКТ</button>
+        <h2>Поддержка проекта</h2>
+        <p style="font-size: 13px; line-height: 1.5; color: #777; margin-bottom: 15px;">
+             Поддержите Бугаза копеечкой.
+        </p>
+        
+        <div class="support-card">
+            <div style="font-size: 11px; color: var(--khaki); text-transform: uppercase; font-weight: bold;">Номер карты:</div>
+            <div class="card-number-box" id="card-num">2200 7005 0856 7400</div>
+           
+        </div>
+        
+        <p style="font-size: 11px; color: #444; margin-top: 20px; text-align: center;">Спасибо за использование PolitMap :)</p>
     </div>
 </div>
 
@@ -112,10 +155,9 @@
 <script>
     const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([48.3, 37.5], 7);
     
-    // СЛОИ
     const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
     const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
-    const osmLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png');
+    
 
     function toggleLayers() {
         if(document.getElementById('sat-switch').checked) {
@@ -125,7 +167,7 @@
         }
     }
 
-    // ЛОГИКА ВКЛАДОК (СВОРАЧИВАНИЕ)
+    // ЛОГИКА ВКЛАДОК
     let currentActiveTab = 'map';
     function toggleTab(id) {
         const sidebar = document.getElementById('sidebar');
@@ -146,7 +188,20 @@
         setTimeout(() => map.invalidateSize(), 300);
     }
 
-    // JSON ДАННЫЕ
+    // КОПИРОВАНИЕ КАРТЫ
+    function copyCard() {
+        const num = document.getElementById('card-num').innerText;
+        navigator.clipboard.writeText(num.replace(/\s/g, ''));
+        const btn = document.querySelector('.copy-btn');
+        const oldTxt = btn.innerText;
+        btn.innerText = 'Скопировано!';
+        btn.style.background = '#28a745';
+        setTimeout(() => {
+            btn.innerText = oldTxt;
+            btn.style.background = 'var(--army-red)';
+        }, 2000);
+    }
+
     let geoJsonLayer;
     async function loadMapData() {
         try {
@@ -183,7 +238,7 @@
 
     function togglePaint() {
         const active = canvas.classList.toggle('active');
-        document.getElementById('draw-btn').innerText = active ? "ВЫКЛЮЧИТЬ" : "ВКЛЮЧИТЬ РЕЖИМ";
+        document.getElementById('draw-btn').innerText = active ? "Выключить" : "Включить рисование";
         if(active) { map.dragging.disable(); map.touchZoom.disable(); } 
         else { map.dragging.enable(); map.touchZoom.enable(); }
     }
@@ -231,9 +286,9 @@
     });
 
     window.addEventListener('pointerup', () => isDrawing = false);
+    function clearCanvas() { ctx.clearRect(0,0, canvas.width, canvas.height); }
 
     loadMapData();
 </script>
 </body>
 </html>
-
