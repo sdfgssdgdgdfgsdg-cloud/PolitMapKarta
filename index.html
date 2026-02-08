@@ -3,69 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>PolitMap Terminal</title>
+    <title>PolitMap | Tactical Terminal</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --army-red: #8b0000; --khaki: #c2b280; --sidebar: #0d0d0d; --border: #222; }
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; outline: none; }
         body { margin: 0; background: #000; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; color: #ccc; }
         
-        /* ЛЕВАЯ ПАНЕЛЬ ИКОНОК */
+        /* ТАБ-БАР */
         #tab-bar { width: 60px; min-width: 60px; background: #111; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 3001; }
-        .tab-btn { width: 44px; height: 44px; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; border-radius: 8px; transition: 0.2s; border: 1px solid transparent; }
+        .tab-btn { width: 44px; height: 44px; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; border-radius: 8px; transition: 0.2s; }
         .tab-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
-        .tab-btn.active { color: var(--khaki); background: #1a1e16; border-color: #3b4634; }
+        .tab-btn.active { color: var(--khaki); background: #1a1e16; border: 1px solid #3b4634; }
 
         /* САЙДБАР */
-        #sidebar { width: 280px; min-width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); z-index: 3000; display: flex; flex-direction: column; }
-        
+        #sidebar { width: 280px; min-width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); z-index: 3000; transition: transform 0.3s; }
         @media (max-width: 768px) {
-            #sidebar { position: absolute; left: 60px; width: calc(100vw - 60px); height: 100%; transform: translateX(-120%); transition: 0.3s; }
+            #sidebar { position: absolute; left: 60px; width: calc(100vw - 60px); height: 100%; transform: translateX(-120%); }
             #sidebar.mobile-open { transform: translateX(0); }
         }
 
         .tab-page { display: none; padding: 25px 20px; height: 100%; overflow-y: auto; }
         .tab-page.active { display: block; }
-        .tab-page h3 { color: #fff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 20px 0; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        h3 { color: #fff; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 20px 0; border-bottom: 1px solid #222; padding-bottom: 10px; }
         
-        /* КНОПКИ УПРАВЛЕНИЯ */
-        .tool-btn { width: 100%; padding: 12px; background: #151515; border: 1px solid #333; color: #888; margin-bottom: 8px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 10px; font-size: 13px; transition: 0.2s; text-align: left; }
-        .tool-btn:hover { background: #1a1a1a; color: #fff; }
+        /* ИНСТРУМЕНТЫ */
+        .tool-btn { width: 100%; padding: 12px; background: #151515; border: 1px solid #333; color: #888; margin-bottom: 8px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 10px; font-size: 13px; }
         .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
+        .tool-btn.danger { color: #ff4444; border-color: #400; margin-top: 10px; }
 
-        /* КАРТА */
+        /* КАРТА И ХОЛСТ */
         #map-container { position: relative; flex-grow: 1; height: 100vh; background: #000; }
-        #map { height: 100%; width: 100%; }
+        #map { height: 100%; width: 100%; z-index: 1; }
         #paint-canvas { position: absolute; top: 0; left: 0; z-index: 1000; pointer-events: none; width: 100%; height: 100%; touch-action: none; }
         #paint-canvas.active { pointer-events: auto; cursor: crosshair; }
 
         /* ПОЛИГОНЫ */
-        .pulsating-dot { width: 12px; height: 12px; background: #ff3b3b; border-radius: 50%; box-shadow: 0 0 10px #ff3b3b; }
+        .pulsating-dot { width: 10px; height: 10px; background: #ff3b3b; border-radius: 50%; box-shadow: 0 0 10px #ff3b3b; }
         
-        /* КАРТОЧКА РЕКВИЗИТОВ */
-        .donate-card { background: #0a0a0a; border: 1px solid #222; padding: 20px; border-radius: 10px; text-align: center; margin-top: 10px; }
-        .card-num { font-family: monospace; color: var(--khaki); font-size: 18px; display: block; margin: 15px 0; letter-spacing: 1px; border: 1px dashed #333; padding: 10px; }
+        /* РЕКВИЗИТЫ */
+        .donate-card { background: #0a0a0a; border: 1px solid #222; padding: 20px; border-radius: 10px; text-align: center; }
+        .card-num { font-family: monospace; color: var(--khaki); font-size: 17px; display: block; margin: 15px 0; letter-spacing: 1px; background: #000; padding: 10px; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
 <div id="tab-bar">
-    <div id="btn-layers" class="tab-btn active" onclick="showTab('layers')" title="Карта">
+    <div id="btn-layers" class="tab-btn active" onclick="showTab('layers')">
         <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
     </div>
-    <div id="btn-draw" class="tab-btn" onclick="showTab('draw')" title="Рисование">
+    <div id="btn-draw" class="tab-btn" onclick="showTab('draw')">
         <svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
     </div>
-    <div id="btn-donate" class="tab-btn" onclick="showTab('donate')" title="Реквизиты">
+    <div id="btn-donate" class="tab-btn" onclick="showTab('donate')">
         <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
     </div>
 </div>
 
 <div id="sidebar">
     <div id="page-layers" class="tab-page active">
-        <h3>Управление</h3>
-        <button class="tool-btn" id="sat-btn" onclick="toggleSat()">🛰️ Спутниковый слой</button>
-        <button class="tool-btn" onclick="loadMapData()">🔄 Обновить полигоны</button>
+        <h3>Карта</h3>
+        <button class="tool-btn" id="sat-btn" onclick="toggleSat()">🛰️ Спутник</button>
+        <button class="tool-btn" onclick="loadMapData()">🔄 Обновить данные</button>
     </div>
 
     <div id="page-draw" class="tab-page">
@@ -73,20 +72,19 @@
         <button class="tool-btn active" id="tool-brush" onclick="setTool('brush')">🖌️ Кисть</button>
         <button class="tool-btn" id="tool-arrow" onclick="setTool('arrow')">↗️ Стрелка</button>
         <div style="margin: 15px 0;">
-            <label style="font-size: 11px; color: #555; display: block; margin-bottom: 5px;">ЦВЕТ</label>
-            <input type="color" id="paint-color" value="#c2b280" style="width:100%; height:35px; border:1px solid #333; background:none; cursor:pointer;">
+            <label style="font-size: 10px; color: #555;">ЦВЕТ МАРКЕРА</label>
+            <input type="color" id="paint-color" value="#c2b280" style="width:100%; height:30px; border:none; background:none; cursor:pointer;">
         </div>
-        <button class="tool-btn" id="paint-toggle-btn" onclick="togglePaint()" style="background: #222; color: #fff; justify-content: center;">ВКЛЮЧИТЬ РЕЖИМ</button>
-        <button class="tool-btn" onclick="clearCanvas()" style="color: #ff4444; justify-content: center; margin-top: 10px; border-color: #400;">Очистить всё</button>
+        <button class="tool-btn" id="paint-toggle-btn" onclick="togglePaint()" style="background:#222; color:#fff; justify-content:center;">ВКЛЮЧИТЬ РЕЖИМ</button>
+        <button class="tool-btn danger" onclick="clearCanvas()" style="justify-content:center;">Очистить всё</button>
     </div>
 
     <div id="page-donate" class="tab-page">
-        <h3>Поддержка</h3>
-        <p style="font-size: 13px; color: #888; line-height: 1.4;">Вы можете поддержать проект:</p>
+        <h3>Реквизиты</h3>
         <div class="donate-card">
-            <span style="font-size: 10px; color: #444;">HOMEP КАРТЫ</span>
-            <span class="card-num" id="card-value">0000 0000 0000 0000</span>
-            <button class="tool-btn" onclick="copyCard()" style="justify-content: center; background: #1a1e16; color: #fff;">📋 Копировать</button>
+            <span style="font-size: 10px; color: #444;">КАРТА</span>
+            <span class="card-num" id="card-val">0000 0000 0000 0000</span>
+            <button class="tool-btn" onclick="copyCard()" style="justify-content:center; background:#1a1e16; color:#fff;">📋 Копировать номер</button>
         </div>
     </div>
 </div>
@@ -98,7 +96,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // ИНИЦИАЛИЗАЦИЯ КАРТЫ
+    // 1. КАРТА
     const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([48.3, 37.5], 7);
     const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
     const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
@@ -111,28 +109,9 @@
         document.getElementById('sat-btn').classList.toggle('active', isSat);
     }
 
-    // ЛОГИКА ТАБОВ
-    function showTab(tabId) {
-        // Убираем активные классы со всех кнопок и страниц
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-        
-        // Активируем нужные
-        document.getElementById('btn-' + tabId).classList.add('active');
-        document.getElementById('page-' + tabId).classList.add('active');
-        
-        // Для мобилок открываем сайдбар
-        if (window.innerWidth <= 768) {
-            document.getElementById('sidebar').classList.add('mobile-open');
-        }
-        
-        // Обновляем размер карты на всякий случай
-        setTimeout(() => map.invalidateSize(), 200);
-    }
-
-    // ЗАГРУЗКА ДАННЫХ
+    // 2. ЗАГРУЗКА ПОЛИГОНОВ
     let geoLayer;
-    const pIcon = L.divIcon({ className: 'p-container', html: '<div class="pulsating-dot"></div>', iconSize:[12,12], iconAnchor:[6,6] });
+    const pIcon = L.divIcon({ className: 'p-dot', html: '<div class="pulsating-dot"></div>', iconSize:[10,10], iconAnchor:[5,5] });
 
     async function loadMapData() {
         try {
@@ -140,28 +119,27 @@
             if(!r.ok) return;
             const data = await r.json();
             if(geoLayer) map.removeLayer(geoLayer);
-
             geoLayer = L.geoJSON(data, {
                 style: (f) => ({ fillColor: f.properties.color || "#8b0000", color: f.properties.color || "#8b0000", weight: 2, fillOpacity: 0.4 }),
                 pointToLayer: (f, ll) => L.marker(ll, { icon: pIcon }),
-                onEachFeature: (f, l) => {
-                    if(f.properties.name) l.bindTooltip(f.properties.name, { sticky: true });
-                }
+                onEachFeature: (f, l) => { if(f.properties.name) l.bindTooltip(f.properties.name); }
             }).addTo(map);
-
             const bounds = geoLayer.getBounds();
             if(bounds.isValid()) map.fitBounds(bounds);
-        } catch(e) { console.error("Ошибка JSON"); }
+        } catch(e) { console.error("JSON Error"); }
     }
 
-    // КОПИРОВАНИЕ КАРТЫ
-    function copyCard() {
-        const val = document.getElementById('card-value').innerText;
-        navigator.clipboard.writeText(val);
-        alert("Номер карты скопирован!");
+    // 3. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+    function showTab(id) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+        document.getElementById('btn-' + id).classList.add('active');
+        document.getElementById('page-' + id).classList.add('active');
+        if (window.innerWidth <= 768) document.getElementById('sidebar').classList.add('mobile-open');
+        setTimeout(() => map.invalidateSize(), 200);
     }
 
-    // РИСОВАЛКА
+    // 4. РИСОВАЛКА
     const canvas = document.getElementById('paint-canvas'), ctx = canvas.getContext('2d');
     let isPainting = false, isDrawing = false, currentTool = 'brush', snapshot, startX, startY;
 
@@ -183,47 +161,47 @@
         document.getElementById('tool-' + t).classList.add('active');
     }
 
-    function getMousePos(e) {
-        const rect = canvas.getBoundingClientRect();
+    function getPos(e) {
+        const r = canvas.getBoundingClientRect();
         const x = e.touches ? e.touches[0].clientX : e.clientX;
         const y = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: x - rect.left, y: y - rect.top };
+        return { x: x - r.left, y: y - r.top };
     }
 
     canvas.addEventListener('mousedown', (e) => {
         if(!isPainting) return;
-        isDrawing = true;
-        const pos = getMousePos(e);
-        startX = pos.x; startY = pos.y;
+        isDrawing = true; const p = getPos(e);
+        startX = p.x; startY = p.y;
         ctx.strokeStyle = document.getElementById('paint-color').value;
         ctx.lineWidth = 3; ctx.lineCap = 'round';
         snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        if(currentTool === 'brush') { ctx.beginPath(); ctx.moveTo(startX, startY); }
+        if(currentTool === 'brush') { ctx.beginPath(); ctx.moveTo(p.x, p.y); }
     });
 
     window.addEventListener('mousemove', (e) => {
         if(!isDrawing || !isPainting) return;
-        const pos = getMousePos(e);
-        if(currentTool === 'brush') {
-            ctx.lineTo(pos.x, pos.y); ctx.stroke();
-        } else {
+        const p = getPos(e);
+        if(currentTool === 'brush') { ctx.lineTo(p.x, p.y); ctx.stroke(); }
+        else {
             ctx.putImageData(snapshot, 0, 0);
-            drawArrow(startX, startY, pos.x, pos.y);
+            const head = 15, angle = Math.atan2(p.y-startY, p.x-startX);
+            ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(p.x, p.y);
+            ctx.lineTo(p.x-head*Math.cos(angle-Math.PI/6), p.y-head*Math.sin(angle-Math.PI/6));
+            ctx.moveTo(p.x, p.y); ctx.lineTo(p.x-head*Math.cos(angle+Math.PI/6), p.y-head*Math.sin(angle+Math.PI/6));
+            ctx.stroke();
         }
     });
 
-    function drawArrow(x1, y1, x2, y2) {
-        const head = 15, angle = Math.atan2(y2-y1, x2-x1);
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
-        ctx.lineTo(x2-head*Math.cos(angle-Math.PI/6), y2-head*Math.sin(angle-Math.PI/6));
-        ctx.moveTo(x2, y2); ctx.lineTo(x2-head*Math.cos(angle+Math.PI/6), y2-head*Math.sin(angle+Math.PI/6));
-        ctx.stroke();
-    }
-
     window.addEventListener('mouseup', () => isDrawing = false);
-    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    
+    // Тач-поддержка
+    canvas.addEventListener('touchstart', (e) => { if(isPainting) { e.preventDefault(); const p = getPos(e); isDrawing = true; startX = p.x; startY = p.y; ctx.strokeStyle = document.getElementById('paint-color').value; ctx.lineWidth = 3; snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height); if(currentTool === 'brush') { ctx.beginPath(); ctx.moveTo(p.x, p.y); } } }, {passive:false});
+    canvas.addEventListener('touchmove', (e) => { if(isDrawing) { e.preventDefault(); const p = getPos(e); if(currentTool === 'brush') { ctx.lineTo(p.x, p.y); ctx.stroke(); } else { ctx.putImageData(snapshot, 0, 0); const head = 15, angle = Math.atan2(p.y-startY, p.x-startX); ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(p.x, p.y); ctx.lineTo(p.x-head*Math.cos(angle-Math.PI/6), p.y-head*Math.sin(angle-Math.PI/6)); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x-head*Math.cos(angle+Math.PI/6), p.y-head*Math.sin(angle+Math.PI/6)); ctx.stroke(); } } }, {passive:false});
+    canvas.addEventListener('touchend', () => isDrawing = false);
 
-    // СТАРТ
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    function copyCard() { navigator.clipboard.writeText(document.getElementById('card-val').innerText); alert("Скопировано!"); }
+
     loadMapData();
 </script>
 </body>
