@@ -7,19 +7,16 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --army-red: #8b0000; --khaki: #c2b280; --sidebar: #0d0d0d; --border: #222; }
-        * { box-sizing: border-box; }
-        body { margin: 0; background: #000; font-family: "Segoe UI", sans-serif; display: flex; color: #777; overflow: hidden; height: 100vh; }
-
-        /* ТАБ-БАР */
-        #tab-bar { width: 50px; min-width: 50px; height: 100vh; background: #111; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 3001; }
-        .tab-btn { width: 38px; height: 38px; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 15px; border-radius: 6px; transition: 0.2s; }
-        .tab-btn.active { color: var(--khaki); background: #2a2f24; border: 1px solid #3b4634; }
-        .tab-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
-
-        /* САЙДБАР */
-        #sidebar { width: 280px; height: 100vh; background: var(--sidebar); border-right: 1px solid var(--border); z-index: 3000; transition: transform 0.3s ease; overflow-y: auto; }
-        #sidebar.collapsed { transform: translateX(-280px); width: 0; margin-right: -50px; }
+        body { margin: 0; background: #000; font-family: sans-serif; display: flex; height: 100vh; overflow: hidden; color: #ccc; }
         
+        #tab-bar { width: 50px; background: #111; border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding-top: 15px; z-index: 3001; }
+        .tab-btn { width: 38px; height: 38px; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 15px; border-radius: 6px; }
+        .tab-btn.active { color: var(--khaki); background: #2a2f24; border: 1px solid #3b4634; }
+        .tab-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        #sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); z-index: 3000; transition: 0.3s; overflow-y: auto; }
+        #sidebar.collapsed { width: 0; transform: translateX(-280px); }
+
         @media (max-width: 768px) {
             #sidebar { position: absolute; left: 50px; width: calc(100vw - 50px); transform: translateX(-110%); }
             #sidebar.active { transform: translateX(0); }
@@ -27,58 +24,39 @@
 
         .tab-page { display: none; padding: 20px; }
         .tab-page.active { display: block; }
-        .header-title { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #222; padding-bottom: 10px; margin-bottom: 20px; color: #fff; }
-
-        /* КНОПКИ */
-        .tool-btn { width: 100%; padding: 12px; background: #151515; border: 1px solid #222; color: #777; display: flex; align-items: center; gap: 10px; margin-bottom: 6px; cursor: pointer; border-radius: 4px; font-size: 13px; }
-        .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
         
-        /* КАРТА */
-        #map-container { position: relative; flex-grow: 1; height: 100vh; background: #000; }
-        #map { height: 100%; width: 100%; z-index: 1; }
+        #map-container { position: relative; flex-grow: 1; height: 100vh; }
+        #map { height: 100%; width: 100%; background: #000; }
         #paint-canvas { position: absolute; top: 0; left: 0; z-index: 1000; pointer-events: none; width: 100%; height: 100%; touch-action: none; }
-        #paint-canvas.active { pointer-events: auto; }
+        #paint-canvas.active { pointer-events: auto; cursor: crosshair; }
 
+        .tool-btn { width: 100%; padding: 10px; background: #151515; border: 1px solid #333; color: #777; margin-bottom: 5px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
+        .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
+
+        .dot-container { background: transparent !important; border: none !important; }
         .pulsating-dot { width: 10px; height: 10px; background: #ff3b3b; border-radius: 50%; box-shadow: 0 0 10px #ff3b3b; }
     </style>
 </head>
 <body>
 
 <div id="tab-bar">
-    <div id="btn-layers" class="tab-btn active" onclick="handleTab('layers')">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-    </div>
-    <div id="btn-draw" class="tab-btn" onclick="handleTab('draw')">
-        <svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-    </div>
-    <div id="btn-donate" class="tab-btn" onclick="handleTab('donate')">
-        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-    </div>
+    <div id="btn-layers" class="tab-btn active" onclick="handleTab('layers')"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg></div>
+    <div id="btn-draw" class="tab-btn" onclick="handleTab('draw')"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></div>
 </div>
 
 <div id="sidebar">
     <div id="layers" class="tab-page active">
-        <div class="header-title">Слои</div>
-        <button class="tool-btn" onclick="toggleSat()">Переключить Спутник</button>
-        <button class="tool-btn" onclick="loadData()">Обновить JSON</button>
+        <h3 style="color: #fff; font-size: 14px;">УПРАВЛЕНИЕ КАРТОЙ</h3>
+        <button class="tool-btn" onclick="toggleSatellite()" id="satBtn">🛰️ Спутниковый режим</button>
+        <button class="tool-btn" onclick="loadData()">🔄 Обновить данные JSON</button>
     </div>
-
     <div id="draw" class="tab-page">
-        <div class="header-title">Рисование</div>
-        <button class="tool-btn" id="drawControl" onclick="togglePaintMode()">ВКЛЮЧИТЬ РИСОВАНИЕ</button>
-        <button class="tool-btn" style="color:red" onclick="clearCanvas()">Очистить холст</button>
-        <input type="color" id="paint-color" value="#c2b280" style="width:100%; height:35px; background:none; border:1px solid #333; cursor:pointer; margin-top:10px;">
-    </div>
-
-    <div id="donate" class="tab-page">
-        <div class="header-title">Поддержка</div>
-        <p style="font-size: 14px; line-height: 1.6;">Если вам нравится проект, вы можете поддержать автора:</p>
-        <div style="background: #111; padding: 15px; border-radius: 8px; border: 1px solid #222; text-align: center;">
-            <p style="color: var(--khaki); font-weight: bold; margin-bottom: 5px;">Crypto Wallet (USDT)</p>
-            <code style="font-size: 11px; color: #aaa; word-break: break-all;">ТВОЙ_АДРЕС_КОШЕЛЬКА_ЗДЕСЬ</code>
-            <button class="tool-btn" style="margin-top: 15px; justify-content: center;" onclick="alert('Адрес скопирован!')">Копировать адрес</button>
-        </div>
-        <p style="font-size: 12px; margin-top: 20px; color: #555;">Все средства пойдут на развитие серверов и новые функции карты.</p>
+        <h3 style="color: #fff; font-size: 14px;">РИСОВАЛКА</h3>
+        <button class="tool-btn active" id="brush-btn" onclick="setTool('brush', this)">🖌️ Кисть</button>
+        <button class="tool-btn" onclick="setTool('arrow', this)">↗️ Стрелка</button>
+        <input type="color" id="paint-color" value="#c2b280" style="width:100%; margin: 10px 0;">
+        <button class="tool-btn" onclick="togglePaintMode()" id="toggle-paint-btn" style="background: #222; color: #fff; justify-content: center;">ВКЛЮЧИТЬ РИСОВАНИЕ</button>
+        <button class="tool-btn" onclick="clearCanvas()" style="color: #ff4444; justify-content: center;">Очистить всё</button>
     </div>
 </div>
 
@@ -89,81 +67,142 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // Инициализация карты
-    const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([48.3, 37.5], 7);
-    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    // Настройка слоев
+    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
     const satTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
+    const map = L.map('map', { attributionControl: false, zoomControl: false }).setView([48.3, 37.5], 7);
+    darkTiles.addTo(map);
 
     let isSat = false;
-    function toggleSat() {
-        if(isSat) { map.removeLayer(satTiles); darkTiles.addTo(map); }
-        else { map.removeLayer(darkTiles); satTiles.addTo(map); }
+    function toggleSatellite() {
         isSat = !isSat;
+        if (isSat) { map.removeLayer(darkTiles); satTiles.addTo(map); }
+        else { map.removeLayer(satTiles); darkTiles.addTo(map); }
+        document.getElementById('satBtn').classList.toggle('active', isSat);
     }
 
-    // Загрузка полигонов (JSON)
+    // Загрузка JSON полигонов
     let geoLayer;
+    const pulsingIcon = L.divIcon({ className: 'dot-container', html: '<div class="pulsating-dot"></div>' });
+
     async function loadData() {
         try {
-            const r = await fetch('data/map.json?v=' + Date.now());
-            const data = await r.json();
-            if(geoLayer) map.removeLayer(geoLayer);
+            // Добавляем случайное число, чтобы браузер не брал старый файл из кэша
+            const response = await fetch('data/map.json?nocache=' + Math.random());
+            if (!response.ok) throw new Error("Файл data/map.json не найден");
+            const data = await response.json();
+
+            if (geoLayer) map.removeLayer(geoLayer);
+
             geoLayer = L.geoJSON(data, {
-                style: (f) => ({ fillColor: f.properties.color || "#8b0000", color: f.properties.color, weight: 2, fillOpacity: 0.4 }),
-                onEachFeature: (f, layer) => { if(f.properties.name) layer.bindTooltip(f.properties.name); }
+                style: (feature) => ({
+                    fillColor: feature.properties.color || "#8b0000",
+                    color: feature.properties.color || "#8b0000",
+                    weight: 2,
+                    fillOpacity: 0.4
+                }),
+                pointToLayer: (feature, latlng) => L.marker(latlng, { icon: pulsingIcon }),
+                onEachFeature: (feature, layer) => {
+                    if (feature.properties && feature.properties.name) {
+                        layer.on('click', () => {
+                            if (layer.getTooltip()) { layer.unbindTooltip(); }
+                            else { layer.bindTooltip(feature.properties.name, { permanent: true }).openTooltip(); }
+                        });
+                    }
+                }
             }).addTo(map);
-            map.fitBounds(geoLayer.getBounds());
-        } catch(e) { console.log("JSON error"); }
+
+            // ФОКУС: Карта автоматически центрируется на твоих полигонах
+            const bounds = geoLayer.getBounds();
+            if (bounds.isValid()) map.fitBounds(bounds);
+
+            console.log("Полигоны успешно загружены");
+        } catch (err) {
+            console.error("Ошибка:", err);
+            alert("Полигоны не загрузились. Убедись, что папка 'data' лежит рядом с index.html");
+        }
     }
 
-    // Переключение табов
+    // Интерфейс
     function handleTab(id) {
         document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.getElementById('btn-' + id).classList.add('active');
+        document.getElementById('sidebar').classList.remove('collapsed');
         if (window.innerWidth <= 768) document.getElementById('sidebar').classList.add('active');
         setTimeout(() => map.invalidateSize(), 200);
     }
 
-    // Рисовалка (Базовый функционал)
+    // Рисовалка (адаптированная под телефон)
     const canvas = document.getElementById('paint-canvas'), ctx = canvas.getContext('2d');
-    let painting = false, paintActive = false;
+    let isPaintingMode = false, isDrawing = false, tool = 'brush', snapshot;
 
-    function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-    window.onresize = resize; resize();
+    function resizeCanvas() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+    window.addEventListener('resize', resizeCanvas); resizeCanvas();
 
     function togglePaintMode() {
-        paintActive = !paintActive;
-        canvas.classList.toggle('active', paintActive);
-        document.getElementById('drawControl').innerText = paintActive ? "ВЫКЛЮЧИТЬ" : "ВКЛЮЧИТЬ РИСОВАНИЕ";
-        paintActive ? map.dragging.disable() : map.dragging.enable();
+        isPaintingMode = !isPaintingMode;
+        const btn = document.getElementById('toggle-paint-btn');
+        btn.innerText = isPaintingMode ? "ВЫКЛЮЧИТЬ РИСОВАНИЕ" : "ВКЛЮЧИТЬ РИСОВАНИЕ";
+        btn.style.background = isPaintingMode ? "#8b0000" : "#222";
+        canvas.classList.toggle('active', isPaintingMode);
+        isPaintingMode ? map.dragging.disable() : map.dragging.enable();
     }
 
     function getPos(e) {
-        const r = canvas.getBoundingClientRect();
-        const x = e.touches ? e.touches[0].clientX : e.clientX;
-        const y = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: x - r.left, y: y - r.top };
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
     }
 
-    canvas.addEventListener('mousedown', (e) => { if(!paintActive) return; painting = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
-    window.addEventListener('mousemove', (e) => { 
-        if(!painting || !paintActive) return; 
-        const p = getPos(e); 
-        ctx.lineTo(p.x, p.y); 
-        ctx.strokeStyle = document.getElementById('paint-color').value; 
-        ctx.lineWidth = 3; ctx.stroke(); 
-    });
-    window.addEventListener('mouseup', () => painting = false);
-    
-    // Тач для мобилок
-    canvas.addEventListener('touchstart', (e) => { if(paintActive) { painting = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); } }, {passive:false});
-    canvas.addEventListener('touchmove', (e) => { if(painting && paintActive) { const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); } }, {passive:false});
-    canvas.addEventListener('touchend', () => painting = false);
+    function startDraw(e) {
+        if (!isPaintingMode) return;
+        isDrawing = true;
+        const pos = getPos(e);
+        ctx.strokeStyle = document.getElementById('paint-color').value;
+        ctx.lineWidth = 3; ctx.lineCap = 'round';
+        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        if (tool === 'brush') { ctx.beginPath(); ctx.moveTo(pos.x, pos.y); }
+        else { startX = pos.x; startY = pos.y; }
+    }
+
+    function moveDraw(e) {
+        if (!isDrawing) return;
+        if (e.cancelable) e.preventDefault();
+        const pos = getPos(e);
+        if (tool === 'brush') { ctx.lineTo(pos.x, pos.y); ctx.stroke(); }
+        else {
+            ctx.putImageData(snapshot, 0, 0);
+            if (tool === 'arrow') drawArrow(startX, startY, pos.x, pos.y);
+        }
+    }
+
+    function drawArrow(x1, y1, x2, y2) {
+        const head = 15, angle = Math.atan2(y2-y1, x2-x1);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.lineTo(x2-head*Math.cos(angle-Math.PI/6), y2-head*Math.sin(angle-Math.PI/6));
+        ctx.moveTo(x2, y2); ctx.lineTo(x2-head*Math.cos(angle+Math.PI/6), y2-head*Math.sin(angle+Math.PI/6));
+        ctx.stroke();
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    window.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('touchstart', (e) => { if(isPaintingMode) startDraw(e); }, {passive: false});
+    canvas.addEventListener('touchmove', moveDraw, {passive: false});
+    canvas.addEventListener('touchend', () => isDrawing = false);
+
+    function setTool(t, btn) {
+        tool = t;
+        document.querySelectorAll('#draw .tool-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
 
     function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
+    // Старт
     loadData();
 </script>
 </body>
