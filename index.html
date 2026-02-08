@@ -14,52 +14,66 @@
             --active-bg: #1a1e16;
         }
 
-        * { box-sizing: border-box; outline: none; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: #000; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; color: #ccc; }
 
-        /* ТАБ БАР */
-        #tab-bar { width: 60px; min-width: 60px; background: #111; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 3001; }
+        /* ИНТЕРФЕЙС - ВЫСШИЙ ПРИОРИТЕТ */
+        #tab-bar { 
+            width: 60px; min-width: 60px; background: #111; border-right: 1px solid var(--border-color); 
+            display: flex; flex-direction: column; align-items: center; padding-top: 20px; 
+            z-index: 9999; position: relative; 
+        }
+        #sidebar { 
+            width: 300px; min-width: 300px; background: var(--sidebar-bg); 
+            border-right: 1px solid var(--border-color); z-index: 9999; 
+            display: flex; flex-direction: column; position: relative; 
+        }
+        
         .tab-btn { width: 44px; height: 44px; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; border-radius: 8px; transition: 0.2s; }
-        .tab-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
         .tab-btn.active { color: var(--khaki); background: var(--active-bg); border: 1px solid #3b4634; }
+        .tab-btn svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-        /* САЙДБАР */
-        #sidebar { width: 300px; min-width: 300px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); z-index: 3000; display: flex; flex-direction: column; }
         .tab-page { display: none; padding: 25px 20px; height: 100%; overflow-y: auto; }
         .tab-page.active { display: block; }
 
-        h2 { color: #fff; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
-
-        /* ПОЛЗУНКИ */
-        .switch-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: #151515; border-radius: 6px; border: 1px solid #222; }
-        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 22px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--army-red); }
-        input:checked + .slider:before { transform: translateX(22px); }
-
-        /* ИКОНКИ SVG */
-        .tool-btn { width: 100%; padding: 12px; background: #151515; border: 1px solid #333; color: #888; margin-bottom: 8px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 12px; font-size: 13px; transition: 0.2s; }
+        /* КНОПКИ */
+        .tool-btn { 
+            width: 100%; padding: 12px; background: #151515; border: 1px solid #333; 
+            color: #888; margin-bottom: 8px; cursor: pointer; border-radius: 4px; 
+            display: flex; align-items: center; gap: 12px; font-size: 13px; 
+        }
         .tool-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
         .tool-btn.active { border-color: var(--khaki); color: #fff; background: var(--active-bg); }
-        .tool-btn.danger { color: #ff4444; border-color: #400; justify-content: center; margin-top: 15px; }
 
-        /* КАРТА */
-        #map-wrap { position: relative; flex-grow: 1; height: 100vh; }
-        #map { height: 100%; width: 100%; z-index: 1; background: #000; }
-        #paint-canvas { position: absolute; top: 0; left: 0; z-index: 1000; pointer-events: none; width: 100%; height: 100%; touch-action: none; }
-        #paint-canvas.active { pointer-events: auto; cursor: crosshair; }
-
-        /* ПУЛЬСАЦИЯ */
-        .pulsating-dot { width: 12px; height: 12px; background: #ff3b3b; border-radius: 50%; border: 2px solid #fff; animation: pulse 1.5s infinite ease-in-out; }
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7); }
-            70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 10px rgba(255, 59, 59, 0); }
-            100% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); }
+        /* КАРТА И ХОЛСТ */
+        #map-wrap { position: relative; flex-grow: 1; height: 100vh; z-index: 1; }
+        #map { height: 100%; width: 100%; z-index: 10; background: #000; }
+        
+        /* Холст для рисования */
+        #paint-canvas { 
+            position: absolute; top: 0; left: 0; z-index: 50; 
+            width: 100%; height: 100%; touch-action: none; 
+            display: none; /* Скрыт по умолчанию, чтобы не блокировать клики */
         }
+        #paint-canvas.active { display: block; cursor: crosshair; }
 
-        .custom-tooltip { background: #000 !important; border: 1px solid var(--khaki) !important; color: #fff !important; font-weight: bold; border-radius: 4px; }
+        /* ЭЛЕМЕНТЫ КАРТЫ */
+        .pulsating-dot { width: 14px; height: 14px; background: #ff3b3b; border-radius: 50%; border: 2px solid #fff; animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 59, 59, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 59, 59, 0); }
+        }
+        .custom-tooltip { background: #000 !important; border: 1px solid var(--khaki) !important; color: #fff !important; font-weight: bold; }
+
+        /* СТИЛЬ ПЕРЕКЛЮЧАТЕЛЕЙ */
+        .switch-group { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 12px; background: #151515; border-radius: 6px; border: 1px solid #222; }
+        .switch { position: relative; width: 44px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #333; transition: .4s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background: var(--army-red); }
+        input:checked + .slider:before { transform: translateX(22px); }
     </style>
 </head>
 <body>
@@ -67,32 +81,33 @@
 <div id="tab-bar">
     <div class="tab-btn active" id="b-map" onclick="setTab('map')"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg></div>
     <div class="tab-btn" id="b-draw" onclick="setTab('draw')"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></div>
-    <div class="tab-btn" id="b-don" onclick="setTab('don')"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></div>
 </div>
 
 <div id="sidebar">
     <div id="t-map" class="tab-page active">
-        <h2>Карта</h2>
+        <h2 style="color:#fff; font-size:12px; letter-spacing:1px; margin-bottom:20px;">НАСТРОЙКИ КАРТЫ</h2>
         <div class="switch-group">
-            <span class="switch-label">Спутник + Границы</span>
-            <label class="switch"><input type="checkbox" id="sat-switch" onchange="toggleSat()"><span class="slider"></span></label>
+            <span>Спутник Esri + OSM</span>
+            <label class="switch"><input type="checkbox" id="sat-switch" onchange="toggleLayers()"><span class="slider"></span></label>
         </div>
         <div class="switch-group">
-            <span class="switch-label">Границы полигонов</span>
+            <span>Границы JSON</span>
             <label class="switch"><input type="checkbox" id="border-switch" checked onchange="updateGeoStyles()"><span class="slider"></span></label>
         </div>
-        <button class="tool-btn" onclick="loadMapData()">🔄 Обновить данные</button>
+        <button class="tool-btn" onclick="loadMapData()">🔄 ОБНОВИТЬ ДАННЫЕ</button>
     </div>
 
     <div id="t-draw" class="tab-page">
-        <h2>Тактическое рисование</h2>
-        <button class="tool-btn active" id="tool-brush" onclick="setTool('brush')"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg> Кисть</button>
-        <button class="tool-btn" id="tool-arrow" onclick="setTool('arrow')"><svg viewBox="0 0 24 24"><line x1="5" y1="19" x2="19" y2="5"></line><polyline points="12 5 19 5 19 12"></polyline></svg> Стрелка</button>
-        <button class="tool-btn" id="tool-circle" onclick="setTool('circle')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg> Круг</button>
-        <button class="tool-btn" id="tool-rect" onclick="setTool('rect')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg> Прямоугольник</button>
-        <input type="color" id="m-color" value="#c2b280" style="width:100%; height:35px; border:1px solid #333; background:none; cursor:pointer; margin: 15px 0;">
-        <button class="tool-btn" id="draw-btn" onclick="togglePaintMode()" style="justify-content:center; background:#222; color:#fff; font-weight:bold;">ВКЛЮЧИТЬ РЕЖИМ</button>
-        <button class="tool-btn danger" onclick="clearCanvas()">Удалить чертежи</button>
+        <h2 style="color:#fff; font-size:12px; letter-spacing:1px; margin-bottom:20px;">ТАКТИЧЕСКИЕ ИНСТРУМЕНТЫ</h2>
+        <button class="tool-btn active" id="tool-brush" onclick="setTool('brush')"><svg viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path></svg> КИСТЬ</button>
+        <button class="tool-btn" id="tool-arrow" onclick="setTool('arrow')"><svg viewBox="0 0 24 24"><line x1="5" y1="19" x2="19" y2="5"></line><polyline points="12 5 19 5 19 12"></polyline></svg> СТРЕЛКА</button>
+        <button class="tool-btn" id="tool-circle" onclick="setTool('circle')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle></svg> КРУГ</button>
+        <button class="tool-btn" id="tool-rect" onclick="setTool('rect')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg> КВАДРАТ</button>
+        
+        <input type="color" id="m-color" value="#c2b280" style="width:100%; height:40px; border:1px solid #333; background:none; margin:15px 0;">
+        
+        <button class="tool-btn" id="draw-btn" onclick="togglePaintMode()" style="background:var(--army-red); color:#fff; justify-content:center; font-weight:bold;">ВКЛЮЧИТЬ РИСОВАНИЕ</button>
+        <button class="tool-btn" onclick="clearCanvas()" style="justify-content:center; margin-top:10px;">ОЧИСТИТЬ ВСЁ</button>
     </div>
 </div>
 
@@ -105,21 +120,20 @@
 <script>
     const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([48.3, 37.5], 7);
     
-    // БАЗОВЫЕ СЛОИ
-    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-    
-    // ГИБРИДНЫЙ СЛОЙ (Спутник + Границы + Названия)
-    // Используем Google Hybrid для гарантированных границ
-    const hybridLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}');
+    // СЛОИ
+    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
+    const osmLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png');
 
-    function toggleSat() {
-        const isSat = document.getElementById('sat-switch').checked;
-        if(isSat) {
-            map.removeLayer(darkLayer);
-            hybridLayer.addTo(map);
+    function toggleLayers() {
+        if(document.getElementById('sat-switch').checked) {
+            map.removeLayer(darkTiles);
+            esriSatellite.addTo(map);
+            osmLabels.addTo(map);
         } else {
-            map.removeLayer(hybridLayer);
-            darkLayer.addTo(map);
+            map.removeLayer(esriSatellite);
+            map.removeLayer(osmLabels);
+            darkTiles.addTo(map);
         }
     }
 
@@ -127,9 +141,10 @@
         document.querySelectorAll('.tab-btn, .tab-page').forEach(el => el.classList.remove('active'));
         document.getElementById('b-' + id).classList.add('active');
         document.getElementById('t-' + id).classList.add('active');
-        setTimeout(() => map.invalidateSize(), 200);
+        setTimeout(() => map.invalidateSize(), 100);
     }
 
+    // ЛОГИКА ДАННЫХ
     let geoJsonLayer;
     async function loadMapData() {
         try {
@@ -137,52 +152,47 @@
             const data = await r.json();
             if(geoJsonLayer) map.removeLayer(geoJsonLayer);
             geoJsonLayer = L.geoJSON(data, {
-                style: getFeatureStyle,
+                style: (f) => ({
+                    fillColor: f.properties.color || "#8b0000",
+                    fillOpacity: 0.4,
+                    color: document.getElementById('border-switch').checked ? (f.properties.color || "#8b0000") : "transparent",
+                    weight: 2
+                }),
                 pointToLayer: (f, ll) => L.marker(ll, { 
-                    icon: L.divIcon({ className: '', html: '<div class="pulsating-dot"></div>', iconSize: [12,12], iconAnchor: [6,6] }) 
+                    icon: L.divIcon({ className: '', html: '<div class="pulsating-dot"></div>', iconSize: [14,14], iconAnchor: [7,7] }) 
                 }),
                 onEachFeature: (f, l) => {
-                    // ЛОГИКА: Только Point и только при клике. Никакого наведения.
-                    if(f.geometry.type === 'Point' && f.properties.name) {
+                    if(f.geometry.type === 'Point') {
                         l.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            // Создаем тултип "на лету" только при нажатии
-                            l.bindTooltip(f.properties.name, { 
-                                className: 'custom-tooltip', 
-                                direction: 'top', 
-                                offset: [0, -10],
-                                permanent: false
-                            }).openTooltip();
+                            l.bindTooltip(f.properties.name, { className: 'custom-tooltip', direction: 'top', offset: [0, -10] }).openTooltip();
                         });
                     }
                 }
             }).addTo(map);
-        } catch(e) { console.log("JSON Load Error"); }
+        } catch(e) {}
     }
+    function updateGeoStyles() { if(geoJsonLayer) geoJsonLayer.setStyle(() => ({ color: document.getElementById('border-switch').checked ? "inherit" : "transparent" })); }
 
-    function getFeatureStyle(f) {
-        const hasBorder = document.getElementById('border-switch').checked;
-        return {
-            fillColor: f.properties.color || "#8b0000",
-            fillOpacity: 0.4,
-            color: hasBorder ? (f.properties.color || "#8b0000") : "transparent",
-            weight: hasBorder ? 2 : 0
-        };
-    }
-    function updateGeoStyles() { if(geoJsonLayer) geoJsonLayer.setStyle(getFeatureStyle); }
-
-    // ДВИЖОК РИСОВАНИЯ (ПОЛНЫЙ)
+    // РИСОВАЛКА (С ФИКСОМ ДЛЯ МОБИЛОК)
     const canvas = document.getElementById('paint-canvas'), ctx = canvas.getContext('2d');
-    let isEnabled = false, isDrawing = false, currentTool = 'brush', snapshot, startX, startY;
+    let isDrawing = false, currentTool = 'brush', snapshot;
 
     function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
-    window.onresize = resize; resize();
+    window.addEventListener('resize', resize); resize();
 
     function togglePaintMode() {
-        isEnabled = !isEnabled;
-        document.getElementById('draw-btn').innerText = isEnabled ? "ВЫКЛЮЧИТЬ" : "ВКЛЮЧИТЬ РЕЖИМ";
-        canvas.classList.toggle('active', isEnabled);
-        isEnabled ? map.dragging.disable() : map.dragging.enable();
+        const active = canvas.classList.toggle('active');
+        document.getElementById('draw-btn').innerText = active ? "ВЫКЛЮЧИТЬ" : "ВКЛЮЧИТЬ РЕЖИМ";
+        document.getElementById('draw-btn').style.background = active ? "#333" : "var(--army-red)";
+        
+        if(active) {
+            map.dragging.disable();
+            map.touchZoom.disable();
+        } else {
+            map.dragging.enable();
+            map.touchZoom.enable();
+        }
     }
 
     function setTool(t) {
@@ -191,35 +201,34 @@
         document.getElementById('tool-' + t).classList.add('active');
     }
 
-    function getCoords(e) {
-        const r = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - r.left, y: clientY - r.top };
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const t = e.touches ? e.touches[0] : e;
+        return { x: t.clientX - rect.left, y: t.clientY - rect.top };
     }
 
-    canvas.onmousedown = canvas.ontouchstart = (e) => {
-        if(!isEnabled) return;
+    canvas.addEventListener('touchstart', (e) => {
         isDrawing = true;
-        const p = getCoords(e); startX = p.x; startY = p.y;
+        const p = getPos(e);
+        startX = p.x; startY = p.y;
         ctx.strokeStyle = document.getElementById('m-color').value;
         ctx.lineWidth = 3; ctx.lineCap = 'round';
-        snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        if(currentTool === 'brush') { ctx.beginPath(); ctx.moveTo(startX, startY); }
-    };
+        snapshot = ctx.getImageData(0,0, canvas.width, canvas.height);
+        if(currentTool === 'brush') { ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+    });
 
-    window.onmousemove = window.ontouchmove = (e) => {
+    canvas.addEventListener('touchmove', (e) => {
         if(!isDrawing) return;
-        if(e.cancelable) e.preventDefault();
-        const p = getCoords(e);
-        if(currentTool === 'brush') { ctx.lineTo(p.x, p.y); ctx.stroke(); }
-        else {
+        const p = getPos(e);
+        if(currentTool === 'brush') {
+            ctx.lineTo(p.x, p.y); ctx.stroke();
+        } else {
             ctx.putImageData(snapshot, 0, 0); ctx.beginPath();
             if(currentTool === 'arrow') {
-                const h = 15, a = Math.atan2(p.y - startY, p.x - startX);
+                const a = Math.atan2(p.y - startY, p.x - startX);
                 ctx.moveTo(startX, startY); ctx.lineTo(p.x, p.y);
-                ctx.lineTo(p.x - h * Math.cos(a - Math.PI/6), p.y - h * Math.sin(a - Math.PI/6));
-                ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - h * Math.cos(a + Math.PI/6), p.y - h * Math.sin(a + Math.PI/6));
+                ctx.lineTo(p.x - 15 * Math.cos(a - Math.PI/6), p.y - 15 * Math.sin(a - Math.PI/6));
+                ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 15 * Math.cos(a + Math.PI/6), p.y - 15 * Math.sin(a + Math.PI/6));
             } else if(currentTool === 'circle') {
                 ctx.arc(startX, startY, Math.sqrt((p.x-startX)**2 + (p.y-startY)**2), 0, Math.PI*2);
             } else if(currentTool === 'rect') {
@@ -227,10 +236,10 @@
             }
             ctx.stroke();
         }
-    };
+    });
 
-    window.onmouseup = window.ontouchend = () => isDrawing = false;
-    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    canvas.addEventListener('touchend', () => isDrawing = false);
+    function clearCanvas() { ctx.clearRect(0,0, canvas.width, canvas.height); }
 
     loadMapData();
 </script>
