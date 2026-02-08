@@ -70,7 +70,6 @@
             display: flex; align-items: center; gap: 12px; font-size: 13px; transition: 0.2s;
         }
         .tool-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; }
-        .tool-btn:hover { background: #1a1a1a; color: #fff; }
         .tool-btn.active { border-color: var(--khaki); color: #fff; background: var(--active-bg); }
         .tool-btn.danger { color: #ff4444; border-color: #400; justify-content: center; margin-top: 15px; }
 
@@ -145,9 +144,7 @@
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>
             Прямоугольник
         </button>
-        
         <input type="color" id="m-color" value="#c2b280" style="width:100%; height:35px; border:1px solid #333; background:none; cursor:pointer; margin: 15px 0;">
-        
         <button class="tool-btn" id="draw-btn" onclick="togglePaintMode()" style="background:#222; color:#fff; justify-content:center; font-weight:bold;">ВКЛЮЧИТЬ РЕЖИМ</button>
         <button class="tool-btn danger" onclick="clearCanvas()">Удалить всё</button>
     </div>
@@ -170,12 +167,25 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([48.3, 37.5], 7);
-    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    
+    // СЛОИ
+    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
     const satTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
+    const hybridBorders = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'); // Границы для спутника
+
+    darkTiles.addTo(map);
 
     function toggleSat() {
         const isSat = document.getElementById('sat-switch').checked;
-        isSat ? (map.removeLayer(darkTiles), satTiles.addTo(map)) : (map.removeLayer(satTiles), darkTiles.addTo(map));
+        if(isSat) {
+            map.removeLayer(darkTiles);
+            satTiles.addTo(map);
+            hybridBorders.addTo(map); // Добавляем границы поверх спутника
+        } else {
+            map.removeLayer(satTiles);
+            map.removeLayer(hybridBorders);
+            darkTiles.addTo(map);
+        }
     }
 
     function setTab(id) {
@@ -198,15 +208,21 @@
                 }),
                 onEachFeature: (f, l) => {
                     if(f.properties.name && f.geometry.type === 'Point') {
+                        // ТОЛЬКО ПО КЛИКУ
+                        l.bindTooltip(f.properties.name, { 
+                            className: 'leaflet-tooltip-custom', 
+                            direction: 'top', 
+                            offset: [0, -10],
+                            sticky: false 
+                        });
                         l.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            l.bindTooltip(f.properties.name, { className: 'leaflet-tooltip-custom', direction: 'top', offset: [0, -10] }).openTooltip();
+                            l.openTooltip();
                         });
                     }
                 }
             }).addTo(map);
-            if(geoJsonLayer.getBounds().isValid()) map.fitBounds(geoJsonLayer.getBounds());
-        } catch(e) { console.error("JSON Error"); }
+        } catch(e) {}
     }
 
     function getFeatureStyle(f) {
@@ -221,6 +237,7 @@
 
     function updateGeoStyles() { if(geoJsonLayer) geoJsonLayer.setStyle(getFeatureStyle); }
 
+    // --- РИСОВАЛКА ---
     const canvas = document.getElementById('paint-canvas'), ctx = canvas.getContext('2d');
     let isEnabled = false, isDrawing = false, currentTool = 'brush', snapshot, startX, startY;
 
@@ -229,7 +246,7 @@
 
     function togglePaintMode() {
         isEnabled = !isEnabled;
-        document.getElementById('draw-btn').innerText = isEnabled ? "ВЫКЛЮЧИТЬ РИСОВАЛКУ" : "ВКЛЮЧИТЬ РИСОВАЛКУ";
+        document.getElementById('draw-btn').innerText = isEnabled ? "ВЫКЛЮЧИТЬ" : "ВКЛЮЧИТЬ РЕЖИМ";
         canvas.classList.toggle('active', isEnabled);
         isEnabled ? map.dragging.disable() : map.dragging.enable();
     }
@@ -286,5 +303,3 @@
 </script>
 </body>
 </html>
-
-
