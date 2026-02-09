@@ -47,7 +47,7 @@
 
         /* ПУЛЬСАЦИЯ */
         .dot-container { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
-        .pulsating-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; position: relative; box-shadow: 0 0 10px #ff4444; }
+        .pulsating-dot { width: 8px; height: 8px; background: #ff0000; border-radius: 50%; position: relative; box-shadow: 0 0 10px #ff4444; }
         .pulsating-dot::after {
             content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
             margin: -4px 0 0 -4px; border-radius: 50%; border: 2px solid #ff4444;
@@ -172,7 +172,7 @@
                 style: (f) => {
                     if (f.geometry.type !== 'Point') {
                         // Создаем заливку (всегда видна)
-                        L.geoJSON(f, { style: { color: f.properties.color || "#DC143C", weight: 0, fillOpacity: 0.2, interactive: false } }).addTo(fillGroup);
+                        L.geoJSON(f, { style: { color: f.properties.color || "#8B0000", weight: 0, fillOpacity: 0.2, interactive: false } }).addTo(fillGroup);
                         // Создаем границу (отключаемая)
                         L.geoJSON(f, { style: { color: "#A52A2A", weight: 3, fillOpacity: 0, interactive: false } }).addTo(borderGroup);
                     }
@@ -263,4 +263,5 @@
 </script>
 </body>
 </html>
+
 
