@@ -156,57 +156,57 @@
     // 2. ЗАГРУЗКА ДАННЫХ (ТОЧКИ + ФРОНТ)
     let geoJsonLayer = null;
 
-    async function loadMapData() {
-        try {
-            const response = await fetch('data/map.json?v=' + Date.now());
-            if (!response.ok) return;
-            const data = await response.json();
+   // --- ЗАМЕНИ ЭТУ ФУНКЦИЮ В СКРИПТЕ ---
+async function loadMapData() {
+    try {
+        const response = await fetch('data/map.json?v=' + Date.now());
+        if (!response.ok) return;
+        const data = await response.json();
+        
+        if(geoJsonLayer) map.removeLayer(geoJsonLayer);
+        
+        geoJsonLayer = L.geoJSON(data, {
+            // Стиль для линий фронта (никаких лейблов здесь нет)
+            style: (f) => ({
+                color: f.properties.color || "#8b0000",
+                weight: 3,
+                fillColor: f.properties.color || "#8b0000",
+                fillOpacity: 0.2,
+                interactive: false // ДЕЛАЕМ ФРОНТ НЕКЛИКАБЕЛЬНЫМ
+            }),
             
-            if(geoJsonLayer) map.removeLayer(geoJsonLayer);
-            
-            geoJsonLayer = L.geoJSON(data, {
-                // СТИЛЬ ДЛЯ ЛИНИЙ И ПОЛИГОНОВ (ФРОНТ)
-                style: (f) => ({
-                    color: f.properties.color || "#8b0000",
-                    weight: f.geometry.type === "LineString" ? 3 : 2,
-                    fillColor: f.properties.color || "#8b0000",
-                    fillOpacity: 0.2,
-                    dashArray: f.properties.dash ? '5, 10' : null
-                }),
-                // СТИЛЬ ДЛЯ ТОЧЕК
-                pointToLayer: (f, ll) => {
-                    const marker = L.marker(ll, { 
-                        icon: L.divIcon({ 
-                            className: '', 
-                            html: '<div class="dot-container"><div class="pulsating-dot"></div></div>', 
-                            iconSize: [20,20], iconAnchor: [10,10] 
-                        }) 
-                    });
-                    
-                    // КЛИК ДЛЯ ПОКАЗА ЛЕЙБЛА
-                    marker.on('click', function() {
-                        if (this.getTooltip()) {
-                            this.unbindTooltip();
-                        } else {
-                            this.bindTooltip(f.properties.name || "Объект", { 
-                                className: 'custom-tooltip', 
-                                direction: 'top', 
-                                offset: [0, -10] 
-                            }).openTooltip();
-                        }
-                    });
-                    return marker;
-                },
-                // КЛИК ДЛЯ ПОЛИГОНОВ (ОПЦИОНАЛЬНО)
-                onEachFeature: (f, l) => {
-                    if (f.geometry.type !== "Point") {
-                        l.on('click', (e) => {
-                            L.DomEvent.stopPropagation(e);
-                            L.popup().setLatLng(e.latlng).setContent(f.properties.name || "Зона").openOn(map);
-                        });
+            // Логика только для точек
+            pointToLayer: (f, ll) => {
+                const marker = L.marker(ll, { 
+                    icon: L.divIcon({ 
+                        className: '', 
+                        html: '<div class="dot-container"><div class="pulsating-dot"></div></div>', 
+                        iconSize: [20,20], 
+                        iconAnchor: [10,10] 
+                    }) 
+                });
+                
+                // ЛЕЙБЛ ТОЛЬКО У ТОЧЕК И ТОЛЬКО ПО КЛИКУ
+                marker.on('click', function(e) {
+                    L.DomEvent.stopPropagation(e);
+                    if (this.getTooltip()) {
+                        this.unbindTooltip();
+                    } else {
+                        this.bindTooltip(f.properties.name || "Объект", { 
+                            className: 'custom-tooltip', 
+                            direction: 'top', 
+                            offset: [0, -10] 
+                        }).openTooltip();
                     }
-                }
-            });
+                });
+                
+                return marker;
+            }
+        });
+        
+        updateGeoVisibility();
+    } catch(e) { console.warn("Данные не подгружены"); }
+}
             updateGeoVisibility();
         } catch(e) { console.warn("Файл JSON не найден или поврежден"); }
     }
@@ -282,5 +282,6 @@
 </script>
 </body>
 </html>
+
 
 
