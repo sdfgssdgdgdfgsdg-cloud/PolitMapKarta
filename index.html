@@ -16,7 +16,7 @@
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: #000; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; color: #ccc; }
 
-        /* ИНТЕРФЕЙС */
+        /* САЙДБАР И ИНТЕРФЕЙС */
         #tab-bar { width: 60px; min-width: 60px; background: #111; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 10001; }
         #sidebar { width: 300px; background: var(--sidebar-bg); border-right: 1px solid var(--border-color); z-index: 10000; display: flex; flex-direction: column; transition: all 0.3s ease; }
         #sidebar.collapsed { width: 0; min-width: 0; border-right: none; transform: translateX(-10px); opacity: 0; pointer-events: none; }
@@ -28,7 +28,6 @@
         .tab-page { display: none; padding: 25px 20px; height: 100%; overflow-y: auto; min-width: 300px; }
         .tab-page.active { display: block; }
 
-        /* КНОПКИ */
         .tool-btn { width: 100%; padding: 12px; background: #151515; border: 1px solid #333; color: #888; margin-bottom: 8px; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 11px; display: flex; align-items: center; gap: 10px; text-transform: uppercase; }
         .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
         .tool-btn.main-action { background: var(--army-red); color: #fff; border: none; justify-content: center; }
@@ -41,21 +40,18 @@
         input:checked + .slider { background: var(--army-red); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* КАРТА И РИСОВАЛКА */
+        /* КАРТА */
         #map-wrap { position: relative; flex-grow: 1; height: 100vh; z-index: 1; background: #000; }
         #map { height: 100%; width: 100%; z-index: 10; }
         #paint-canvas { position: absolute; top: 0; left: 0; z-index: 5000; width: 100%; height: 100%; touch-action: none; pointer-events: none; }
         #paint-canvas.active { pointer-events: auto; cursor: crosshair; }
 
-        /* ИСПРАВЛЕННЫЕ ТОЧКИ */
-        .dot-container {
-            display: flex; align-items: center; justify-content: center;
-            width: 20px; height: 20px;
-        }
+        /* ИСПРАВЛЕННАЯ ТОЧКА (БЕЗ БЕЛОГО КРУГА) */
+        .dot-container { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; }
         .pulsating-dot { 
             width: 8px; height: 8px; background: #ff3b3b; 
             border-radius: 50%; position: relative;
-            box-shadow: 0 0 8px #ff3b3b;
+            box-shadow: 0 0 10px #ff3b3b;
         }
         .pulsating-dot::after {
             content: ''; position: absolute; 
@@ -64,15 +60,14 @@
             margin: -4px 0 0 -4px;
             border-radius: 50%; 
             border: 2px solid #ff3b3b; 
-            animation: pulsate 1.5s ease-out infinite; 
-            box-sizing: border-box;
+            animation: pulsate 1.8s ease-out infinite; 
         }
         @keyframes pulsate {
             0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(4); opacity: 0; }
+            100% { transform: scale(4.5); opacity: 0; }
         }
 
-        .custom-tooltip { background: #000 !important; border: 1px solid var(--khaki) !important; color: #fff !important; font-weight: bold; font-size: 11px; padding: 4px 8px; }
+        .custom-tooltip { background: #000 !important; border: 1px solid var(--khaki) !important; color: #fff !important; font-weight: bold; font-size: 11px; padding: 4px 8px; border-radius: 0; }
     </style>
 </head>
 <body>
@@ -86,8 +81,8 @@
 <div id="sidebar">
     <div id="t-map" class="tab-page active">
         <h2>Карта</h2>
-        <div class="switch-group"><span>Спутник</span><label class="switch"><input type="checkbox" id="sat-switch" onchange="toggleLayers()"><span class="slider"></span></label></div>
-        <div class="switch-group"><span>Объекты</span><label class="switch" ><input type="checkbox" id="border-switch" checked onchange="updateGeoVisibility()"><span class="slider"></span></label></div>
+        <div class="switch-group"><span>Спутник + OSM</span><label class="switch"><input type="checkbox" id="sat-switch" onchange="toggleLayers()"><span class="slider"></span></label></div>
+        <div class="switch-group"><span>Объекты JSON</span><label class="switch"><input type="checkbox" id="border-switch" checked onchange="updateGeoVisibility()"><span class="slider"></span></label></div>
         <button class="tool-btn" onclick="loadMapData()">🔄 Обновить данные</button>
     </div>
 
@@ -98,13 +93,15 @@
         <button class="tool-btn" id="tool-circle" onclick="setTool('circle')">Круг</button>
         <input type="color" id="m-color" value="#c2b280" style="width:100%; height:35px; border:1px solid #333; background:none; margin:10px 0;">
         <button class="tool-btn main-action" id="draw-btn" onclick="togglePaint()">Режим рисования</button>
-        <button class="tool-btn" onclick="clearCanvas()" style="margin-top:10px; border-color: #444;">❌ Стереть всё</button>
+        <button class="tool-btn" onclick="clearCanvas()" style="margin-top:10px;">❌ Стереть всё</button>
     </div>
 
     <div id="t-don" class="tab-page">
         <h2>Поддержка</h2>
-        <div class="card-number-box">2200 0000 0000 0000</div>
-        <button class="tool-btn main-action" onclick="alert('Скопировано')">Копировать</button>
+        <div style="background:#111; padding:15px; border-radius:8px; text-align:center;">
+            <div style="font-family:monospace; font-size:16px; margin-bottom:10px;">2200 0000 0000 0000</div>
+            <button class="tool-btn main-action" onclick="alert('Скопировано')">Копировать</button>
+        </div>
     </div>
 </div>
 
@@ -131,38 +128,62 @@
         }
     }
 
-    // 2. ОБЪЕКТЫ И КЛИКАБЕЛЬНЫЕ ЛЕЙБЛЫ
+    // 2. ЗАГРУЗКА ДАННЫХ (ТОЧКИ + ФРОНТ)
     let geoJsonLayer = null;
 
     async function loadMapData() {
-        // Здесь можно подгружать свой JSON через fetch
-        // Для примера создаем пустой слой, если данных нет
-        if(geoJsonLayer) map.removeLayer(geoJsonLayer);
-        
-        geoJsonLayer = L.geoJSON(null, {
-            style: (f) => ({ color: f.properties.color || "#8b0000", fillOpacity: 0.4, weight: 2 }),
-            pointToLayer: (f, ll) => {
-                const marker = L.marker(ll, { 
-                    icon: L.divIcon({ 
-                        className: '', 
-                        html: '<div class="dot-container"><div class="pulsating-dot"></div></div>', 
-                        iconSize: [20,20], iconAnchor: [10,10] 
-                    }) 
-                });
-                
-                // ЛЕЙБЛ ТОЛЬКО ПРИ КЛИКЕ
-                marker.on('click', function() {
-                    this.bindTooltip(f.properties.name || "Объект", { 
-                        className: 'custom-tooltip', 
-                        direction: 'top', 
-                        offset: [0, -10] 
-                    }).openTooltip();
-                });
-
-                return marker;
-            }
-        });
-        updateGeoVisibility();
+        try {
+            const response = await fetch('data/map.json?v=' + Date.now());
+            if (!response.ok) return;
+            const data = await response.json();
+            
+            if(geoJsonLayer) map.removeLayer(geoJsonLayer);
+            
+            geoJsonLayer = L.geoJSON(data, {
+                // СТИЛЬ ДЛЯ ЛИНИЙ И ПОЛИГОНОВ (ФРОНТ)
+                style: (f) => ({
+                    color: f.properties.color || "#8b0000",
+                    weight: f.geometry.type === "LineString" ? 3 : 2,
+                    fillColor: f.properties.color || "#8b0000",
+                    fillOpacity: 0.2,
+                    dashArray: f.properties.dash ? '5, 10' : null
+                }),
+                // СТИЛЬ ДЛЯ ТОЧЕК
+                pointToLayer: (f, ll) => {
+                    const marker = L.marker(ll, { 
+                        icon: L.divIcon({ 
+                            className: '', 
+                            html: '<div class="dot-container"><div class="pulsating-dot"></div></div>', 
+                            iconSize: [20,20], iconAnchor: [10,10] 
+                        }) 
+                    });
+                    
+                    // КЛИК ДЛЯ ПОКАЗА ЛЕЙБЛА
+                    marker.on('click', function() {
+                        if (this.getTooltip()) {
+                            this.unbindTooltip();
+                        } else {
+                            this.bindTooltip(f.properties.name || "Объект", { 
+                                className: 'custom-tooltip', 
+                                direction: 'top', 
+                                offset: [0, -10] 
+                            }).openTooltip();
+                        }
+                    });
+                    return marker;
+                },
+                // КЛИК ДЛЯ ПОЛИГОНОВ (ОПЦИОНАЛЬНО)
+                onEachFeature: (f, l) => {
+                    if (f.geometry.type !== "Point") {
+                        l.on('click', (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            L.popup().setLatLng(e.latlng).setContent(f.properties.name || "Зона").openOn(map);
+                        });
+                    }
+                }
+            });
+            updateGeoVisibility();
+        } catch(e) { console.warn("Файл JSON не найден или поврежден"); }
     }
 
     function updateGeoVisibility() {
@@ -179,16 +200,14 @@
         setTimeout(() => map.invalidateSize(), 300);
     }
 
-    // 4. РИСОВАЛКА (С ФУНКЦИЕЙ ОЧИСТКИ)
+    // 4. РИСОВАЛКА
     const canvas = document.getElementById('paint-canvas'), ctx = canvas.getContext('2d');
     let isDrawing = false, currentTool = 'brush', snapshot, startX, startY;
 
     function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
     window.addEventListener('resize', resize); resize();
 
-    function clearCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
     function togglePaint() {
         const active = canvas.classList.toggle('active');
