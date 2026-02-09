@@ -10,7 +10,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
         body { background: #000; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; color: #ccc; }
 
-        /* ТАБ-БАР (ЛЕВАЯ ПАНЕЛЬ) */
+        /* ТАБ-БАР */
         #tab-bar { width: 60px; min-width: 60px; background: #111; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; padding-top: 20px; z-index: 10005; }
         .tab-btn { width: 44px; height: 44px; color: #444; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 20px; border-radius: 8px; transition: 0.2s; }
         .tab-btn.active { color: var(--khaki); background: #1a1e16; border: 1px solid #3b4634; }
@@ -21,17 +21,16 @@
         .tab-page { display: none; padding: 20px; height: 100%; overflow-y: auto; }
         .tab-page.active { display: block; }
 
-        /* ЭЛЕМЕНТЫ УПРАВЛЕНИЯ */
+        /* ИНТЕРФЕЙС */
         .switch-group { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #151515; border-radius: 6px; margin-bottom: 8px; border: 1px solid #222; font-size: 13px; cursor: pointer; }
         .tool-btn { width: 100%; padding: 10px; background: #1a1a1a; border: 1px solid #333; color: #888; cursor: pointer; border-radius: 4px; font-weight: bold; margin-top: 8px; text-transform: uppercase; font-size: 10px; }
         .tool-btn.active { border-color: var(--khaki); color: #fff; background: #1a1e16; }
         .main-action { background: var(--army-red) !important; color: #fff !important; border: none !important; margin-top: 15px; }
 
-        /* ПОЛЗУНОК И ЦВЕТ */
         input[type=range] { width: 100%; accent-color: var(--army-red); cursor: pointer; }
         input[type=color] { width: 40px; height: 20px; border: none; background: none; cursor: pointer; }
 
-        /* КАРТА И ХОЛСТ */
+        /* КАРТА */
         #map-wrap { position: relative; flex-grow: 1; height: 100%; z-index: 1; }
         #map { height: 100%; width: 100%; z-index: 10; background: #050505; }
         #paint-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5000; pointer-events: none; }
@@ -42,12 +41,12 @@
         .switch input { display: none; }
         .slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #333; border-radius: 20px; transition: 0.4s; }
         .slider:before { content: ""; position: absolute; height: 12px; width: 12px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.4s; }
-        input:checked + .slider { background: #ff4444; }
+        input:checked + .slider { background: #44ff44; }
         input:checked + .slider:before { transform: translateX(16px); }
 
         /* ПУЛЬСАЦИЯ */
         .dot-container { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
-        .pulsating-dot { width: 8px; height: 8px; background: #ff0000; border-radius: 50%; position: relative; box-shadow: 0 0 10px #ff4444; }
+        .pulsating-dot { width: 8px; height: 8px; background: #ff4444; border-radius: 50%; position: relative; box-shadow: 0 0 10px #ff4444; }
         .pulsating-dot::after {
             content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
             margin: -4px 0 0 -4px; border-radius: 50%; border: 2px solid #ff4444;
@@ -64,36 +63,28 @@
 <body>
 
 <div id="tab-bar">
-    <div class="tab-btn active" id="btn-map" onclick="toggleTab('map')" title="Карта">
-        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-    </div>
-    <div class="tab-btn" id="btn-draw" onclick="toggleTab('draw')" title="Правки">
-        <svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-    </div>
-    <div class="tab-btn" id="btn-info" onclick="toggleTab('info')" title="Инфо">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-    </div>
-    <div class="tab-btn" id="btn-don" onclick="toggleTab('don')" title="Поддержка">
-        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-    </div>
+    <div class="tab-btn active" id="btn-map" onclick="toggleTab('map')"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg></div>
+    <div class="tab-btn" id="btn-draw" onclick="toggleTab('draw')"><svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></div>
+    <div class="tab-btn" id="btn-info" onclick="toggleTab('info')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div>
+    <div class="tab-btn" id="btn-don" onclick="toggleTab('don')"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div>
 </div>
 
 <div id="sidebar">
     <div id="t-map" class="tab-page active">
-        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">УПРАВЛЕНИЕ</h2>
+        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">КАРТА</h2>
         <div class="switch-group" onclick="toggleCheck('sat-in')">
-            <span>Спутниковые снимки</span>
+            <span>Спутник</span>
             <label class="switch"><input type="checkbox" id="sat-in" onchange="toggleLayers()"><span class="slider"></span></label>
         </div>
         <div class="switch-group" onclick="toggleCheck('obj-in')">
-            <span>Красная граница фронта</span>
+            <span>Цветные границы фронта</span>
             <label class="switch"><input type="checkbox" id="obj-in" checked onchange="updateGeo()"><span class="slider"></span></label>
         </div>
         <button class="tool-btn" onclick="loadMap()">🔄 Обновить данные</button>
     </div>
 
     <div id="t-draw" class="tab-page">
-        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">ПРАВКИ</h2>
+        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">ИНСТРУМЕНТЫ</h2>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
             <button class="tool-btn active" id="tool-brush" onclick="setTool('brush')">Кисть</button>
             <button class="tool-btn" id="tool-arrow" onclick="setTool('arrow')">Стрела</button>
@@ -109,18 +100,14 @@
     </div>
 
     <div id="t-info" class="tab-page">
-        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">Обозначения</h2>
-        <p style="font-size: 13px; color: #888; line-height: 1.6;">
-            • <b>Заливка</b>: Общая зона фронта.<br>
-            • <b>Граница</b>: Точное начертание (отключаемо).<br>
-            • <b>Точки</b>: Тактические объекты.
-        </p>
+        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">ИНФО</h2>
+        <p style="font-size: 13px; color: #888;">Цвета зон подтягиваются автоматически из вашего файла JSON.</p>
     </div>
 
     <div id="t-don" class="tab-page">
-        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">ПОДДЕРЖКА БУГАЗА</h2>
+        <h2 style="font-size: 11px; letter-spacing: 2px; margin-bottom: 15px;">ПОДДЕРЖКА</h2>
         <div class="support-card">
-            <span class="card-number" id="card-val">2200 7005 0856 7400</span>
+            <span class="card-number" id="card-val">2200 0000 0000 0000</span>
             <button class="tool-btn main-action" onclick="copyCard()">Копировать номер</button>
         </div>
     </div>
@@ -133,16 +120,15 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 1. ЛОГИКА КАРТЫ
     const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png');
     const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}');
     const labels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png');
     
     const map = L.map('map', { zoomControl: false, attributionControl: false, layers: [dark] }).setView([48.3, 37.5], 7);
 
-    const fillGroup = L.layerGroup().addTo(map);   // Для прозрачной заливки
-    const borderGroup = L.layerGroup().addTo(map); // Для яркой линии
-    const pointsGroup = L.layerGroup().addTo(map); // Для пульсирующих точек
+    const fillGroup = L.layerGroup().addTo(map);   
+    const borderGroup = L.layerGroup().addTo(map); 
+    const pointsGroup = L.layerGroup().addTo(map); 
 
     function toggleLayers() {
         const isSat = document.getElementById('sat-in').checked;
@@ -150,7 +136,6 @@
         else { map.removeLayer(esri); map.removeLayer(labels); map.addLayer(dark); }
     }
 
-    // 2. ЗАГРУЗКА ДАННЫХ
     async function loadMap() {
         try {
             const res = await fetch('data/map.json?v=' + Date.now());
@@ -171,15 +156,23 @@
                 },
                 style: (f) => {
                     if (f.geometry.type !== 'Point') {
-                        // Создаем заливку (всегда видна)
-                        L.geoJSON(f, { style: { color: f.properties.color || "#8B0000", weight: 0, fillOpacity: 0.2, interactive: false } }).addTo(fillGroup);
-                        // Создаем границу (отключаемая)
-                        L.geoJSON(f, { style: { color: "FF4000", weight: 3, fillOpacity: 0, interactive: false } }).addTo(borderGroup);
+                        // ПОЛУЧАЕМ ЦВЕТ ИЗ JSON (Google My Maps обычно использует stroke или fill)
+                        const rawColor = f.properties.fill || f.properties.stroke || f.properties.color || "#8b0000";
+
+                        // Создаем заливку
+                        L.geoJSON(f, { 
+                            style: { color: rawColor, weight: 0, fillOpacity: 0.25, interactive: false } 
+                        }).addTo(fillGroup);
+
+                        // Создаем границу
+                        L.geoJSON(f, { 
+                            style: { color: rawColor, weight: 3, fillOpacity: 0, interactive: false } 
+                        }).addTo(borderGroup);
                     }
                 }
             });
             updateGeo();
-        } catch(e) { console.log("Data error"); }
+        } catch(e) { console.log("JSON Load Error"); }
     }
 
     function updateGeo() {
@@ -187,7 +180,6 @@
         showBorder ? map.addLayer(borderGroup) : map.removeLayer(borderGroup);
     }
 
-    // 3. ИНТЕРФЕЙС
     function toggleTab(id) {
         document.querySelectorAll('.tab-page, .tab-btn').forEach(el => el.classList.remove('active'));
         document.getElementById('btn-' + id).classList.add('active');
@@ -208,7 +200,6 @@
         alert("Номер скопирован");
     }
 
-    // 4. РИСОВАНИЕ
     const canvas = document.getElementById('paint-canvas'), ctx = canvas.getContext('2d');
     let drawing = false, currentTool = 'brush', snapshot, startX, startY;
 
@@ -263,8 +254,4 @@
 </script>
 </body>
 </html>
-
-
-
-
 
