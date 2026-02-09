@@ -13,6 +13,40 @@
             --khaki: #c2b280;
             --sidebar-bg: #0d0d0d;
             --border-color: #222;
+
+            /* АНИМАЦИЯ МЕРЦАНИЯ */
+.pulsating-dot {
+    width: 12px;
+    height: 12px;
+    background: #ff3b3b;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    position: relative;
+}
+
+.pulsating-dot::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid #ff3b3b;
+    animation: pulsate-ring 1.5s ease-out infinite;
+}
+
+@keyframes pulsate-ring {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
         }
 
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
@@ -294,3 +328,4 @@
 
 </body>
 </html>
+
