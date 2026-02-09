@@ -47,26 +47,51 @@
         #paint-canvas.active { pointer-events: auto; cursor: crosshair; }
 
         /* ИСПРАВЛЕННАЯ ТОЧКА (БЕЗ БЕЛОГО КРУГА) */
-        .dot-container { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; }
-        .pulsating-dot { 
-            width: 8px; height: 8px; background: #ff3b3b; 
-            border-radius: 50%; position: relative;
-            box-shadow: 0 0 10px #ff3b3b;
-        }
-        .pulsating-dot::after {
-            content: ''; position: absolute; 
-            top: 50%; left: 50%;
-            width: 8px; height: 8px;
-            margin: -4px 0 0 -4px;
-            border-radius: 50%; 
-            border: 2px solid #ff3b3b; 
-            animation: pulsate 1.8s ease-out infinite; 
-        }
-        @keyframes pulsate {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(4.5); opacity: 0; }
-        }
+        /* Контейнер для выравнивания */
+.dot-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+}
 
+/* Само ядро (красная точка) */
+.pulsating-dot { 
+    width: 8px; 
+    height: 8px; 
+    background: #ff3b3b; 
+    border-radius: 50%; 
+    position: relative;
+    box-shadow: 0 0 12px #ff3b3b; /* Мягкое свечение вместо белой обводки */
+}
+
+/* Пульсирующее кольцо */
+.pulsating-dot::after {
+    content: '';
+    position: absolute;
+    /* Центрируем кольцо относительно ядра */
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px; /* Смещение на половину размера для идеального центра */
+    border-radius: 50%; 
+    border: 2px solid #ff3b3b; 
+    animation: pulsate-clean 1.8s ease-out infinite; 
+    box-sizing: border-box;
+}
+
+@keyframes pulsate-clean {
+    0% { 
+        transform: scale(1); 
+        opacity: 0.8; 
+    }
+    100% { 
+        transform: scale(5); 
+        opacity: 0; 
+    }
+}
         .custom-tooltip { background: #000 !important; border: 1px solid var(--khaki) !important; color: #fff !important; font-weight: bold; font-size: 11px; padding: 4px 8px; border-radius: 0; }
     </style>
 </head>
@@ -257,3 +282,4 @@
 </script>
 </body>
 </html>
+
