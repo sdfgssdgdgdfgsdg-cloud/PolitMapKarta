@@ -130,15 +130,21 @@
     const borderGroup = L.layerGroup().addTo(map); 
     const pointsGroup = L.layerGroup().addTo(map); 
 
-   function toggleLayers() {
+  // 1. Добавь этот слой в начало, где объявлены dark и esri
+const osmLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+    zIndex: 1000 // Чтобы названия всегда были поверх всего
+});
+
+// 2. Обнови функцию переключения
+function toggleLayers() {
     const isSat = document.getElementById('sat-in').checked;
     if(isSat) { 
         map.removeLayer(dark); 
         map.addLayer(esri); 
-        map.addLayer(labels); // Вот эта строчка добавляет границы и названия
+        map.addLayer(osmLabels); // Включаем границы и названия OSM
     } else { 
         map.removeLayer(esri); 
-        map.removeLayer(labels); // А эта убирает их при возврате на темную карту
+        map.removeLayer(osmLabels); // Выключаем, так как в темной теме они свои
         map.addLayer(dark); 
     }
 }
@@ -264,5 +270,6 @@
 </script>
 </body>
 </html>
+
 
 
